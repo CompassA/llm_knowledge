@@ -1,0 +1,11 @@
+CREATE DATABASE llm_knowledge;
+CREATE DATABASE llm_knowledge_sharding_00;
+CREATE DATABASE llm_knowledge_sharding_01;
+CREATE DATABASE llm_knowledge_sharding_02;
+CREATE DATABASE llm_knowledge_sharding_03;
+CREATE DATABASE llm_knowledge_sharding_04;
+CREATE DATABASE llm_knowledge_sharding_05;
+CREATE DATABASE llm_knowledge_sharding_06;
+CREATE DATABASE llm_knowledge_sharding_07;
+CREATE DATABASE llm_knowledge_sharding_08;
+CREATE DATABASE llm_knowledge_sharding_09;
