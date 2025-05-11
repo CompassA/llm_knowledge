@@ -24,6 +24,10 @@
     <properties>
         <llm-knowledge-facade.version>1.1.0.20250511</llm-knowledge-facade.version>
         <llm-spring-boot.version>3.2.12</llm-spring-boot.version>
+        <llm-sharding-jdbc.version>5.5.2</llm-sharding-jdbc.version>
+        <llm-alibaba-druid.version>1.2.24</llm-alibaba-druid.version>
+        <llm-lombok.version>1.18.14</llm-lombok.version>
+        <llm-mysql-driver.version>9.3.0</llm-mysql-driver.version>
     </properties>
 
     <dependencyManagement>
@@ -78,6 +82,11 @@
                 <artifactId>llm-know-ledge-biz-service</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>${llm-lombok.version}</version>
+            </dependency>
 
             <dependency>
                 <groupId>org.springframework.boot</groupId>
@@ -86,6 +95,25 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+
+            <dependency>
+                <groupId>org.apache.shardingsphere</groupId>
+                <artifactId>shardingsphere-jdbc</artifactId>
+                <version>${llm-sharding-jdbc.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.alibaba</groupId>
+                <artifactId>druid</artifactId>
+                <version>${llm-alibaba-druid.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.mysql</groupId>
+                <artifactId>mysql-connector-j</artifactId>
+                <version>${llm-mysql-driver.version}</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 
