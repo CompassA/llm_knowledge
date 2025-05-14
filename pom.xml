@@ -24,7 +24,7 @@
     <properties>
         <llm-knowledge-facade.version>1.1.0.20250511</llm-knowledge-facade.version>
         <llm-spring-boot.version>3.2.12</llm-spring-boot.version>
-        <llm-sharding-jdbc.version>5.5.2</llm-sharding-jdbc.version>
+        <llm-sharding-jdbc.version>5.2.1</llm-sharding-jdbc.version>
         <llm-alibaba-druid.version>1.2.24</llm-alibaba-druid.version>
         <llm-lombok.version>1.18.14</llm-lombok.version>
         <llm-mysql-driver.version>9.3.0</llm-mysql-driver.version>
@@ -98,7 +98,7 @@
 
             <dependency>
                 <groupId>org.apache.shardingsphere</groupId>
-                <artifactId>shardingsphere-jdbc</artifactId>
+                <artifactId>shardingsphere-jdbc-core-spring-boot-starter</artifactId>
                 <version>${llm-sharding-jdbc.version}</version>
             </dependency>
 
@@ -112,6 +112,12 @@
                 <groupId>com.mysql</groupId>
                 <artifactId>mysql-connector-j</artifactId>
                 <version>${llm-mysql-driver.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.yaml</groupId>
+                <artifactId>snakeyaml</artifactId>
+                <version>1.33</version>
             </dependency>
 
         </dependencies>
