@@ -1,40 +1,34 @@
 package org.tomato.study.dal.config;
 
+import com.alibaba.druid.filter.Filter;
 import com.alibaba.druid.filter.logging.Slf4jLogFilter;
 import com.alibaba.druid.filter.stat.StatFilter;
 import com.alibaba.druid.pool.DruidDataSource;
 import com.google.common.collect.Lists;
-import org.apache.shardingsphere.driver.jdbc.core.datasource.ShardingSphereDataSource;
+import org.apache.shardingsphere.driver.api.ShardingSphereDataSourceFactory;
+import org.apache.shardingsphere.infra.config.mode.ModeConfiguration;
+import org.apache.shardingsphere.infra.config.rule.RuleConfiguration;
+import org.apache.shardingsphere.mode.repository.standalone.StandalonePersistRepositoryConfiguration;
+import org.apache.shardingsphere.spring.boot.datasource.DataSourceMapSetter;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Primary;
+import org.springframework.core.env.Environment;
 
 import javax.sql.DataSource;
-import java.util.HashMap;
+import java.sql.SQLException;
+import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 /**
  * @author Tomato
  * Created on 2025.05.12
  */
 @Configuration
-@DependsOn({"shardingSphereDataSource"})
 public class AppDataSourceConfiguration {
-
-    @Bean
-    public StatFilter druidStatFilter() {
-        StatFilter filter = new StatFilter();
-        filter.setSlowSqlMillis(10000L);
-        filter.setLogSlowSql(true);
-        return filter;
-    }
-
-    @Bean
-    public Slf4jLogFilter druidSlf4jLog() {
-        return new Slf4jLogFilter();
-    }
 
     @Bean
     @Primary
@@ -45,9 +39,7 @@ public class AppDataSourceConfiguration {
 
     @Bean
     @Primary
-    public DataSource llmKnowledgeDatasource(DruidDataSourceProperties llmKnowledgeConfig,
-                                             StatFilter druidStatFilter,
-                                             Slf4jLogFilter druidSlf4jLog) {
+    public DataSource llmKnowledgeDatasource(DruidDataSourceProperties llmKnowledgeConfig) {
         DruidDataSource druidDataSource = new DruidDataSource();
         druidDataSource.setName("llmKnowledgeDatasource");
         druidDataSource.setUrl(llmKnowledgeConfig.getUrl());
@@ -64,15 +56,45 @@ public class AppDataSourceConfiguration {
         druidDataSource.setTestOnBorrow(llmKnowledgeConfig.getTestOnBorrow());
         druidDataSource.setTestOnReturn(llmKnowledgeConfig.getTestOnReturn());
         druidDataSource.setPoolPreparedStatements(llmKnowledgeConfig.getPoolPreparedStatements());
-        druidDataSource.setProxyFilters(Lists.newArrayList(druidStatFilter, druidSlf4jLog));
+        druidDataSource.setProxyFilters(createDruidDataSourceFilter());
         return druidDataSource;
     }
 
     @Bean
-    public Map<String, DataSource> llmKnowledgeDataSource(ShardingSphereDataSource shardingSphereDataSource,
-                                                          StatFilter druidStatFilter,
-                                                          Slf4jLogFilter druidSlf4jLog) {
-        // fixme TOMATO druid配置
-        return new HashMap<>();
+    public DataSource knowledgeFlowShardingDataSource(Environment environment,
+                                                      ObjectProvider<List<RuleConfiguration>> rules) throws SQLException {
+        Map<String, DataSource> dataSourceMap = DataSourceMapSetter.getDataSourceMap(environment);
+        DataSource knowledgeFlowShardingDataSource = ShardingSphereDataSourceFactory.createDataSource(
+                "knowledgeFlowShardingDataSource",
+                new ModeConfiguration("Standalone", new StandalonePersistRepositoryConfiguration("JDBC", new Properties())),
+                dataSourceMap,
+                rules.getObject(),
+                new Properties()
+        );
+
+        dataSourceMap.forEach((dataSourceName, dataSource) -> {
+            if (dataSource instanceof DruidDataSource druidDataSource) {
+                druidDataSource.setProxyFilters(createDruidDataSourceFilter());
+            }
+        });
+        return knowledgeFlowShardingDataSource;
+    }
+
+    private List<Filter> createDruidDataSourceFilter() {
+        return Lists.newArrayList(
+                createDruidStatFilter(),
+                createDruidSlf4jLog()
+        );
+    }
+
+    private StatFilter createDruidStatFilter() {
+        StatFilter filter = new StatFilter();
+        filter.setSlowSqlMillis(1000L);
+        filter.setLogSlowSql(true);
+        return filter;
+    }
+
+    private Slf4jLogFilter createDruidSlf4jLog() {
+        return new Slf4jLogFilter();
     }
 }
